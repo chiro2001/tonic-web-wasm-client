@@ -119,6 +119,26 @@ pub struct ResponseBody {
     finished_stream: bool,
 }
 
+#[cfg(target_arch = "wasm32")]
+impl Default for ResponseBody {
+    fn default() -> Self {
+        // will never arrive here
+        todo!();
+        let body_stream = ReadableStream::new().unwrap();
+        let body_stream =
+            wasm_streams::ReadableStream::from_raw(body_stream.unchecked_into()).into_stream();
+        Self {
+            body_stream: BodyStream::new(body_stream),
+            buf: EncodedBytes::new("application/grpc-web+proto").unwrap(),
+            incomplete_data: BytesMut::new(),
+            data: None,
+            trailer: None,
+            state: ReadState::CompressionFlag,
+            finished_stream: false,
+        }
+    }
+}
+
 impl ResponseBody {
     pub(crate) fn new(body_stream: ReadableStream, content_type: &str) -> Result<Self, Error> {
         let body_stream =
