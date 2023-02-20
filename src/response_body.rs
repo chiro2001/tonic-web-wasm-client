@@ -120,6 +120,7 @@ pub struct ResponseBody {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[allow(unreachable_code)]
 impl Default for ResponseBody {
     fn default() -> Self {
         // will never arrive here
